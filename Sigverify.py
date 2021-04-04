@@ -108,7 +108,6 @@ class SigVerify(AbstractWindowsCommand):
         '''
         Main plugin function
 
-        @return a tuple of process name, process identifier, and process verification result
         '''
 
         self.check_args()
@@ -153,7 +152,6 @@ class SigVerify(AbstractWindowsCommand):
         '''
         Uses FileScan plugin to retrieve all FileObjects of memory dump
 
-        @return a list of FileObjects
         '''
 
         self.__debug_message('info', 'Retrieving all file objects, this may take a while...\n')
@@ -183,10 +181,6 @@ class SigVerify(AbstractWindowsCommand):
         '''
         Gets executable full paths and base name
 
-        @param task: _EPROCESS structure
-        @param dlls: True if search for exe and also dlls
-
-        @return a list of tuples of modules' full path and base name, in that order
         '''
 
         ret = []
@@ -223,15 +217,6 @@ class SigVerify(AbstractWindowsCommand):
         '''
         Gets file object corresponding to an executable image
 
-        @param filename: executable full path
-
-        @return a dict representing a FileObject:
-                    - name: full path
-                    - fobj: memory offset
-                    - pad: pages NOT memory resident
-                    - present: pages memory resident
-                    - type: either ImageSectionObject, DataSectionObject, or SharedCacheMap
-                    - ofpath: unique file name to dumps content to, if necessary
         '''
 
         if filename:
@@ -251,9 +236,6 @@ class SigVerify(AbstractWindowsCommand):
         '''
         Converts filepath to use uniform notation
 
-        @param filepath
-
-        @return normalized filepath
         '''
 
         to_replace = {
@@ -272,10 +254,6 @@ class SigVerify(AbstractWindowsCommand):
         '''
         Uses DumpFiles plugin to retrieve all FileObjects of memory dump
 
-        @param file_object: FileObject dict
-        @param complete: boolean to force file_object to be full memory resident, default to True
-
-        @return a FileObject
         '''
 
         try:
@@ -398,11 +376,11 @@ class SigVerify(AbstractWindowsCommand):
     def verify_pe(self, pe):
         cert = self.sigv.extract_cert(pe)
         if cert:
-            algorithm, hash_file = self.sigv.get_digest_from_signature(cert)     '''计算证书链哈希值'''
+            algorithm, hash_file = self.sigv.get_digest_from_signature(cert)    
             if algorithm:
-                digest = self.sigv.calculate_pe_digest(algorithm, pe.__data__)     '''计算PE文件哈希值'''
+                digest = self.sigv.calculate_pe_digest(algorithm, pe.__data__)    
                 if hash_file == digest:
-                    return self.sigv.verify_signature(cert)      '''验证证书链'''
+                    return self.sigv.verify_signature(cert)      
                 else:
                     return ReturnCode.AUTHENTICODE_SIGNATURE_MISMATCH
             else:
@@ -455,9 +433,6 @@ class SigVerify(AbstractWindowsCommand):
         '''
         Validate signature of a DataSectionObject
 
-        @param content: data retrieved from a DataSectionObject
-
-        @return string with verification process result
         '''
 
         # Sometimes, there is padding at the end of buffer
@@ -490,9 +465,6 @@ class SigVerify(AbstractWindowsCommand):
         '''
         Gets NtHeader offset
 
-        @param pe_data: PE raw data
-
-        @return NtHeader offset
         '''
         if pe_data[:2] == b'\x4D\x5A':              # MZ
             nt_headers_addr = self.unpack_dword(pe_data[0x3c:0x3c+0x04])
@@ -516,9 +488,6 @@ class SigVerify(AbstractWindowsCommand):
         '''
         Deletes padding of SectionObject containing an executable
 
-        @param content: with padding
-
-        @return content without padding
         '''
 
         real_size = self.calculate_pe_size(content)
@@ -532,9 +501,6 @@ class SigVerify(AbstractWindowsCommand):
         Calculate the size of an executable adding size of PE headers, all sections,
         and Authenticode signature
 
-        @param data: executable data
-
-        @return executable size
         '''
 
         # Assume PE file is well formed
